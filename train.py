@@ -1,7 +1,7 @@
 import pytorch_lightning as pl
 
 from model import MyModel
-from dataset import MyDataMudule
+from dataset import MyDataModule
 
 
 trainer = pl.Trainer(
@@ -20,7 +20,7 @@ trainer = pl.Trainer(
 )
 
 model = MyModel()
-data_module = MyDataMudule(batch_size=512)
+data_module = MyDataModule(batch_size=512)
 
 trainer.fit(
     model=model,

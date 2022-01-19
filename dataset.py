@@ -38,7 +38,7 @@ class MyDataSet(torch.utils.data.Dataset):
         return len(self.data)
 
 
-class MyDataMudule(pl.LightningDataModule):
+class MyDataModule(pl.LightningDataModule):
 
     def __init__(self, batch_size=256):
         super().__init__()
