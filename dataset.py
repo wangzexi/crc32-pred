@@ -1,3 +1,4 @@
+import os
 import binascii
 
 import torch
@@ -12,10 +13,8 @@ def fake_crc(val):
 
 class MyDataSet(torch.utils.data.Dataset):
 
-    def __init__(self):
-        self.batch_size = 512
-
-        with open('./data/2022-01-19.bin', 'rb') as f:
+    def __init__(self, data_path):
+        with open(data_path, 'rb') as f:
             bits = f.read()
 
         self.data = []
@@ -40,18 +39,19 @@ class MyDataSet(torch.utils.data.Dataset):
 
 class MyDataModule(pl.LightningDataModule):
 
-    def __init__(self, batch_size=256):
+    def __init__(self, data_path, batch_size=512):
         super().__init__()
 
+        self.data_path = data_path
         self.batch_size = batch_size
 
     def prepare_data(self):
-        dataset = MyDataSet()
+        dataset = MyDataSet(self.data_path)
 
         # train:val:test = 6:2:2
         self.train = torch.utils.data.Subset(
             dataset, range(0, int(len(dataset)*0.6)))
-        self.val = torch.utils.data.Subset(
+        self.valid = torch.utils.data.Subset(
             dataset, range(int(len(dataset)*0.6), int(len(dataset)*0.8)))
         self.test = torch.utils.data.Subset(
             dataset, range(int(len(dataset)*0.8), int(len(dataset))))
@@ -60,11 +60,21 @@ class MyDataModule(pl.LightningDataModule):
         return torch.utils.data.DataLoader(self.train, batch_size=self.batch_size, shuffle=True)
 
     def val_dataloader(self):
-        return torch.utils.data.DataLoader(self.train, batch_size=self.batch_size, shuffle=False)
+        return torch.utils.data.DataLoader(self.valid, batch_size=self.batch_size, shuffle=False)
 
     def test_dataloader(self):
-        return torch.utils.data.DataLoader(self.train, batch_size=self.batch_size, shuffle=False)
+        return torch.utils.data.DataLoader(self.test, batch_size=self.batch_size, shuffle=False)
 
 
 if __name__ == '__main__':
-    dataset = MyDataSet()
+    # dataset = MyDataSet(data_path='data/urandom.bin')
+    dataset = MyDataSet(data_path='data/2022-01-19.bin')
+    print(len(dataset))
+    print(dataset[0])
+
+    exit()
+
+    # 生成伪随机数文件
+    data = os.urandom(1024*1024)  # 1MB
+    with open('./data/urandom.bin', 'wb') as f:
+        f.write(data)

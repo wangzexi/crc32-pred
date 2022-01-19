@@ -20,7 +20,7 @@ trainer = pl.Trainer(
 )
 
 model = MyModel()
-data_module = MyDataModule(batch_size=512)
+data_module = MyDataModule(data_path='./data/2022-01-19.bin', batch_size=512)
 
 trainer.fit(
     model=model,
