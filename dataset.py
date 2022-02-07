@@ -6,9 +6,26 @@ import pytorch_lightning as pl
 
 
 def fake_crc(val):
-    # return 32bit crc checksum
     ret = binascii.crc32(val)
     return ret >> 31
+
+
+def crc32(crc, p, len):
+    crc = 0xffffffff & ~crc
+    for i in range(len):
+        crc = crc ^ p[i]
+        for j in range(8):
+            crc = (crc >> 1) ^ (0xedb88320 & -(crc & 1))
+    return 0xffffffff & ~crc
+
+
+rv = os.urandom(32)  # 伪随机
+
+ret1 = crc32(0, rv, 32)
+ret2 = binascii.crc32(rv)
+print(ret1, ret2)
+
+exit()
 
 
 class MyDataSet(torch.utils.data.Dataset):
